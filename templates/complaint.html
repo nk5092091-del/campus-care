@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="hero">
+  <h1>Hi, {{ session.name }} 👋</h1>
+  <p>Spotted water leakage, wasted electricity or a broken facility? Report it in a minute and help keep our campus clean and efficient.</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><b>{{ s.total }}</b><span>📋 Total Complaints</span></div>
+  <div class="stat pending"><b>{{ s.pending }}</b><span>⏳ Pending</span></div>
+  <div class="stat resolved"><b>{{ s.resolved }}</b><span>✅ Resolved</span></div>
+</div>
+
+{% if s.total >= 2 %}
+<div class="repeat-note">
+  🔁 You have reported <b>{{ s.total }}</b> complaints so far. Thank you for keeping the campus in check!
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>📝 Report a Complaint</h2>
+    <form method="POST" enctype="multipart/form-data">
+    <div class="form-grid">
+
+      <div class="full">
+        <label class="lbl">Student Name</label>
+        <input name="name" placeholder="Student Name" value="{{ session.name }}" required>
+      </div>
+
+      <div>
+        <label class="lbl">Department</label>
+        <input name="department" placeholder="e.g. CSE" required>
+      </div>
+      <div>
+        <label class="lbl">Roll Number</label>
+        <input name="roll_no" placeholder="e.g. 101" required>
+      </div>
+
+      <div class="full">
+        <label class="lbl">Problem Type</label>
+        <select name="category" required>
+          <option value="">-- Select Problem Type --</option>
+
+          <optgroup label="💧 Water">
+            <option>Water Leakage (tap/pipeline)</option>
+            <option>Tank Overflow</option>
+            <option>Poor Drinking Water Quality</option>
+            <option>No Water Supply</option>
+          </optgroup>
+
+          <optgroup label="⚡ Electricity">
+            <option>Fans ON without need</option>
+            <option>Lights ON without need</option>
+            <option>AC ON without need</option>
+            <option>Projector/PC left ON</option>
+          </optgroup>
+
+          <optgroup label="🖥 Equipment">
+            <option>Lift Not Working</option>
+            <option>PC Not Working Properly</option>
+            <option>Printer Problem</option>
+            <option>Printer Cartridge/Ink Low</option>
+            <option>Projector Not Working</option>
+            <option>Wi-Fi/Internet Issue</option>
+          </optgroup>
+
+          <optgroup label="🏢 Facilities">
+            <option>Washroom Cleanliness</option>
+            <option>Broken Bench/Furniture</option>
+            <option>Other</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="full">
+        <label class="lbl">Location</label>
+        <input name="location" placeholder="e.g. Lab 2, Block A" required>
+      </div>
+
+      <div class="full">
+        <label class="lbl">Description</label>
+        <textarea name="description" id="desc" rows="4" maxlength="300"
+          placeholder="Describe the problem, e.g. tap has been leaking since morning..." required></textarea>
+        <div class="counter"><span id="cnt">0</span>/300</div>
+              <div class="full">
+        <label class="lbl">📷 Photo Evidence <small>(optional)</small></label>
+        <div class="cam-box">
+          <video id="camVideo" autoplay playsinline muted hidden></video>
+          <canvas id="camCanvas" hidden></canvas>
+          <img id="camPreview" alt="Preview" hidden>
+          <p id="camMsg" class="cam-msg">No photo attached yet.</p>
+
+          <div class="cam-actions">
+            <button type="button" id="btnOpen" class="cam-btn">📷 Open Camera</button>
+            <button type="button" id="btnSnap" class="cam-btn" hidden>📸 Capture</button>
+            <label id="btnGallery" class="cam-btn alt" for="photo">🖼 Choose from Gallery</label>
+            <button type="button" id="btnRemove" class="cam-btn danger" hidden>✖ Remove</button>
+          </div>
+
+          <input type="file" name="photo" id="photo" accept="image/*" hidden>
+        </div>
+      </div>
+      </div>
+
+    </div>
+    <button class="submit">🚀 Submit Complaint</button>
+  </form>
+</div>
+
+<script>
+  var d = document.getElementById("desc");
+  d.addEventListener("input", function () {
+    document.getElementById("cnt").textContent = d.value.length;
+  });
+    var video = document.getElementById("camVideo"),
+      canvas = document.getElementById("camCanvas"),
+      preview = document.getElementById("camPreview"),
+      msg = document.getElementById("camMsg"),
+      input = document.getElementById("photo"),
+      stream = null;
+  function $(id) { return document.getElementById(id); }
+
+  function stopCamera() {
+    if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+    video.hidden = true;
+  }
+
+  function showPreview(file) {
+    preview.src = URL.createObjectURL(file);
+    preview.hidden = false;
+    video.hidden = true;
+    msg.textContent = "✅ Photo attached as evidence.";
+    $("btnOpen").hidden = true;
+    $("btnSnap").hidden = true;
+    $("btnGallery").hidden = true;
+    $("btnRemove").hidden = false;
+  }
+
+  async function openCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      msg.textContent = "Live camera needs HTTPS or localhost. Use 'Choose from Gallery'.";
+      return;
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } }, audio: false
+      });
+      video.srcObject = stream;
+      video.hidden = false;
+      preview.hidden = true;
+      msg.textContent = "Point the camera at the problem and press Capture.";
+      $("btnOpen").hidden = true;
+      $("btnSnap").hidden = false;
+    } catch (e) {
+      msg.textContent = "Camera not available. Use 'Choose from Gallery'.";
+    }
+  }
+
+  function capture() {
+    var w = video.videoWidth, h = video.videoHeight;
+    if (!w) return;
+    var scale = Math.min(1, 1280 / w);
+    canvas.width = w * scale;
+    canvas.height = h * scale;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgba(0,0,0,.55)";
+    ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillText("Campus Care | " + new Date().toLocaleString(), 10, canvas.height - 9);
+    canvas.toBlob(function (blob) {
+      var file = new File([blob], "evidence.jpg", { type: "image/jpeg" });
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      stopCamera();
+      showPreview(file);
+    }, "image/jpeg", 0.85);
+  }
+
+  function removePhoto() {
+    input.value = "";
+    preview.hidden = true;
+    preview.removeAttribute("src");
+    msg.textContent = "No photo attached yet.";
+    $("btnOpen").hidden = false;
+    $("btnGallery").hidden = false;
+    $("btnRemove").hidden = true;
+  }
+
+  $("btnOpen").onclick = openCamera;
+  $("btnSnap").onclick = capture;
+  $("btnRemove").onclick = removePhoto;
+  input.addEventListener("change", function () {
+    if (input.files.length) { stopCamera(); showPreview(input.files[0]); }
+  });
+</script>
+{% endblock %}

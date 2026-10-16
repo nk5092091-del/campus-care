@@ -1,0 +1,63 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 20px 6%;
+  background: url("campus.jpg") center top / cover no-repeat fixed;
+}
+
+.card {
+  width: 340px; max-width: 100%;
+  padding: 28px 26px;
+  border-radius: 18px;
+  background: rgba(25, 55, 90, 0.38);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 35px rgba(20, 40, 70, 0.35);
+  color: #fff;
+}
+
+.card h2 { text-align: center; font-size: 22px; font-weight: 600; }
+.sub { text-align: center; font-size: 13px; opacity: .85; margin: 4px 0 18px; }
+
+.field {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 12px; margin-bottom: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: .2s;
+}
+.field:focus-within { background: rgba(255, 255, 255, 0.26); border-color: #fff; }
+.field input {
+  flex: 1; border: none; outline: none; background: transparent;
+  padding: 10px 0; font-size: 14px; color: #fff;
+}
+.field input::placeholder { color: rgba(255, 255, 255, 0.75); }
+.eye { cursor: pointer; user-select: none; }
+
+.row { font-size: 13px; margin-bottom: 14px; }
+.row label { cursor: pointer; }
+.row input { accent-color: #4a90d9; }
+
+.btn {
+  width: 100%; padding: 10px; margin-top: 4px;
+  border: none; border-radius: 10px;
+  background: #3f7fc0; color: #fff;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: .2s;
+}
+.btn:hover { background: #2f6aa8; }
+
+.link { text-align: center; margin-top: 16px; font-size: 13px; }
+.link a { color: #fff; font-weight: 700; text-decoration: underline; }
+
+.flash {
+  background: rgba(255, 90, 90, 0.35); border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px; border-radius: 8px; margin-bottom: 12px;
+  font-size: 13px; text-align: center;
+}
+
+@media (max-width: 700px) { body { justify-content: center; padding: 20px; } }

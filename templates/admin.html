@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="stats">
+  <div class="stat"><b>{{ s.total }}</b><span>📋 Total Complaints</span></div>
+  <div class="stat pending"><b>{{ s.pending }}</b><span>⏳ Pending</span></div>
+  <div class="stat resolved"><b>{{ s.resolved }}</b><span>✅ Resolved</span></div>
+</div>
+
+<div class="card">
+  <h2>All Complaints (Admin)</h2>
+  <table>
+    <tr>
+      <th>ID</th><th>Name</th><th>Times</th><th>Dept</th><th>Roll No</th><th>Category</th>
+      <th>Location</th><th>Description</th><th>Evidence</th><th>Status</th><th>Action</th>
+    </tr>
+    {% for c in complaints %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.name }}</td>
+      <td>
+        <span class="times {% if counts[c.user_id] > 1 %}repeat{% endif %}">{{ counts[c.user_id] }}</span>
+      </td>
+      <td>{{ c.department }}</td>
+      <td>{{ c.roll_no }}</td>
+      <td>{{ c.category }}</td>
+      <td>{{ c.location }}</td>
+      <td>{{ c.description }}</td>
+      <td>
+        {% if c.photo %}
+          <a href="{{ url_for('static', filename='uploads/' + c.photo) }}" target="_blank">
+            <img class="thumb" src="{{ url_for('static', filename='uploads/' + c.photo) }}">
+          </a>
+        {% else %}—{% endif %}
+      </td>
+      <td><span class="{{ c.status }}">{{ c.status }}</span></td>
+      <td>
+        {% if c.status == 'Pending' %}
+          <a class="act" href="/resolve/{{ c.id }}">Mark Resolved</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="11">No complaints yet.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

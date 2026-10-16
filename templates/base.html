@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Campus Care</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav>
+    <div class="brand">🏫 Campus Care</div>
+
+    <div class="links">
+      {% if session.is_admin %}
+        <a href="/admin">Home</a>
+      {% else %}
+        <a href="/complaint">Home</a>
+        <a href="/my_complaints">My Complaints</a>
+      {% endif %}
+    </div>
+
+    <div class="user">
+      <div class="avatar" onclick="toggleMenu()">👤</div>
+      <div class="menu" id="menu">
+        <p>{{ session.name }}</p>
+        <a href="/logout">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    {% with msgs = get_flashed_messages() %}
+      {% for m in msgs %}<p class="flash">{{ m }}</p>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById("menu").classList.toggle("show");
+    }
+    window.onclick = function (e) {
+      if (!e.target.closest(".user")) {
+        document.getElementById("menu").classList.remove("show");
+      }
+    };
+  </script>
+</body>
+</html>
